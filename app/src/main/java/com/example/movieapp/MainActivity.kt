@@ -1,20 +1,54 @@
 package com.example.movieapp
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
+import android.view.View
+import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.movieapp.api.RetrofitClient
+import com.example.movieapp.model.Movie
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var progressBar: ProgressBar
+    private lateinit var adapter: MovieAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+
+        recyclerView = findViewById(R.id.moviesRecyclerView)
+        progressBar = findViewById(R.id.progressBar)
+
+        adapter = MovieAdapter(emptyList()) { movie ->
+            Toast.makeText(this, movie.title, Toast.LENGTH_SHORT).show()
+        }
+        recyclerView.layoutManager = GridLayoutManager(this, 3)
+        recyclerView.adapter = adapter
+
+        loadPopularMovies()
+    }
+
+    private fun loadPopularMovies() {
+        progressBar.visibility = View.VISIBLE
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitClient.api.getPopularMovies()
+                adapter.updateMovies(response.results)
+            } catch (e: Exception) {
+                Toast.makeText(
+                    this@MainActivity,
+                    "Error: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            } finally {
+                progressBar.visibility = View.GONE
+            }
         }
     }
 }
