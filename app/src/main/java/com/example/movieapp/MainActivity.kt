@@ -37,6 +37,10 @@ class MainActivity : AppCompatActivity() {
             startActivity(android.content.Intent(this, SearchActivity::class.java))
         }
 
+        findViewById<android.widget.Button>(R.id.favoritesScreenButton).setOnClickListener {
+            startActivity(android.content.Intent(this, FavoritesActivity::class.java))
+        }
+
         loadPopularMovies()
     }
 

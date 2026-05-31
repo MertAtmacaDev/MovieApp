@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.movieapp.api.RetrofitClient
 import kotlinx.coroutines.launch
+import android.widget.Button
+import com.example.movieapp.storage.FavoritesManager
 
 class DetailActivity : AppCompatActivity() {
 
@@ -33,6 +35,25 @@ class DetailActivity : AppCompatActivity() {
         if (movieId == -1) {
             Toast.makeText(this, "Movie not found", Toast.LENGTH_SHORT).show()
             return
+        }
+
+        val favoriteButton = findViewById<Button>(R.id.favoriteButton)
+
+        fun updateFavoriteButton() {
+            favoriteButton.text =
+                if (FavoritesManager.isFavorite(this, movieId)) "★ In Favorites"
+                else "☆ Add to Favorites"
+        }
+        updateFavoriteButton()
+
+        favoriteButton.setOnClickListener {
+            val nowFavorite = FavoritesManager.toggleFavorite(this, movieId)
+            updateFavoriteButton()
+            Toast.makeText(
+                this,
+                if (nowFavorite) "Added to favorites" else "Removed from favorites",
+                Toast.LENGTH_SHORT
+            ).show()
         }
 
         lifecycleScope.launch {
