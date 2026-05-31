@@ -11,6 +11,7 @@ import com.example.movieapp.model.Movie
 
 class MovieAdapter(
     private var movies: List<Movie>,
+    private val useSmallLayout: Boolean = false,
     private val onClick: (Movie) -> Unit
 ) : RecyclerView.Adapter<MovieAdapter.MovieViewHolder>() {
 
@@ -20,8 +21,9 @@ class MovieAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
+        val layoutId = if (useSmallLayout) R.layout.item_movie_small else R.layout.item_movie
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_movie, parent, false)
+            .inflate(layoutId, parent, false)
         return MovieViewHolder(view)
     }
 

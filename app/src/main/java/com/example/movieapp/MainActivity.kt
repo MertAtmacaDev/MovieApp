@@ -26,7 +26,9 @@ class MainActivity : AppCompatActivity() {
         progressBar = findViewById(R.id.progressBar)
 
         adapter = MovieAdapter(emptyList()) { movie ->
-            Toast.makeText(this, movie.title, Toast.LENGTH_SHORT).show()
+            val intent = android.content.Intent(this, DetailActivity::class.java)
+            intent.putExtra("MOVIE_ID", movie.id)
+            startActivity(intent)
         }
         recyclerView.layoutManager = GridLayoutManager(this, 3)
         recyclerView.adapter = adapter
