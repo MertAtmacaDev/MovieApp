@@ -26,6 +26,7 @@
         <activity android:name=".DetailActivity" />
         <activity android:name=".SearchActivity" />
         <activity android:name=".FavoritesActivity" />
+        <activity android:name=".SettingsActivity" />
     </application>
 
 </manifest>
