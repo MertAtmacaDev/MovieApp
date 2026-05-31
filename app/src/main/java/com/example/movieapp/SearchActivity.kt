@@ -1,59 +1,59 @@
 package com.example.movieapp
 
+import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import android.widget.ProgressBar
+import android.widget.Button
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.movieapp.api.RetrofitClient
-import com.example.movieapp.model.Movie
 import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity() {
+class SearchActivity : AppCompatActivity() {
 
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var progressBar: ProgressBar
     private lateinit var adapter: MovieAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_search)
 
-        recyclerView = findViewById(R.id.moviesRecyclerView)
-        progressBar = findViewById(R.id.progressBar)
+        val searchInput = findViewById<EditText>(R.id.searchInput)
+        val searchButton = findViewById<Button>(R.id.searchButton)
+        val recyclerView = findViewById<RecyclerView>(R.id.searchRecyclerView)
 
         adapter = MovieAdapter(emptyList()) { movie ->
-            val intent = android.content.Intent(this, DetailActivity::class.java)
+            val intent = Intent(this, DetailActivity::class.java)
             intent.putExtra("MOVIE_ID", movie.id)
             startActivity(intent)
         }
         recyclerView.layoutManager = GridLayoutManager(this, 3)
         recyclerView.adapter = adapter
 
-        findViewById<android.widget.Button>(R.id.searchScreenButton).setOnClickListener {
-            startActivity(android.content.Intent(this, SearchActivity::class.java))
+        searchButton.setOnClickListener {
+            val query = searchInput.text.toString().trim()
+            if (query.isNotEmpty()) {
+                performSearch(query)
+            }
         }
-
-        loadPopularMovies()
     }
 
-    private fun loadPopularMovies() {
-        progressBar.visibility = View.VISIBLE
+    private fun performSearch(query: String) {
         lifecycleScope.launch {
             try {
-                val response = RetrofitClient.api.getPopularMovies()
+                val response = RetrofitClient.api.searchMovies(query)
                 adapter.updateMovies(response.results)
+                if (response.results.isEmpty()) {
+                    Toast.makeText(this@SearchActivity, "No results", Toast.LENGTH_SHORT).show()
+                }
             } catch (e: Exception) {
                 Toast.makeText(
-                    this@MainActivity,
+                    this@SearchActivity,
                     "Error: ${e.message}",
                     Toast.LENGTH_LONG
                 ).show()
-            } finally {
-                progressBar.visibility = View.GONE
             }
         }
     }
